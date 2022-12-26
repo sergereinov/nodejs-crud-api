@@ -1,6 +1,5 @@
 import { User } from './user';
-import { DbEntryNotFoundError, DbEntryAlreadyExistError, DbError } from './errors';
-import { Repository } from './repository';
+import { DbEntryNotFoundError, DbEntryAlreadyExistError } from './errors';
 
 /**
  * In-memory Users Database
@@ -74,68 +73,3 @@ export class UsersDb {
         this._users.splice(index, 1);
     }
 }
-
-/*
-// TODO move it all bellow to unit tests
-
-const db: Repository = new UsersDb();
-console.log('db =', db);
-
-db.create({
-    id: '1',
-    username: 'name1',
-    age: 1,
-    hobbies: ['hob1', 'hob2']
-});
-
-console.log('db =', db);
-
-try {
-    db.create({
-        id: '1',
-        username: 'name1',
-        age: 1,
-        hobbies: ['hob1', 'hob2']
-    });
-} catch (e) {
-    console.log(e);
-    console.log('typeof e is', typeof e);
-    console.log('e instanceof Error is', e instanceof Error);
-    console.log('e instanceof DbError is', e instanceof DbError);
-    console.log('e instanceof DbEntryNotFoundError is', e instanceof DbEntryNotFoundError);
-    console.log('e instanceof DbEntryAlreadyExistError is', e instanceof DbEntryAlreadyExistError);
-    console.log('e.constructor is', (e as Error).constructor);
-    console.log('e.constructor === DbEntryNotFoundError is', (e as Error).constructor === DbEntryNotFoundError);
-    console.log('e.constructor === DbEntryAlreadyExistError is', (e as Error).constructor === DbEntryAlreadyExistError);
-}
-
-console.log('db =', db);
-
-db.create({
-    id: '2',
-    username: 'name2',
-    age: 2,
-    hobbies: ['hob3', 'hob3']
-});
-
-console.log('db =', db);
-
-console.log('users =', db.getAll());
-
-const u1 = db.getById('1');
-
-// console.log('u1 (before) =', u1);
-// (u1 as User).username = 'updated name for name1';
-// console.log('u1 (after) =', u1);
-// console.log('db (after) =', db);
-
-db.deleteById('1');
-
-console.log('db =', db);
-
-// const all = db.getAll();
-// console.log('all (before) =', all);
-// all[0].username = 'second updated name2';
-// console.log('all (after) =', all);
-// console.log('db (after) =', db);
-*/
