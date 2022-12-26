@@ -122,11 +122,15 @@ describe('UsersDb', () => {
     });
 
     it('should be DbEntryNotFoundError type', () => {
-        let e = new DbEntryNotFoundError();
+        let e: any = new DbEntryNotFoundError();
 
         const shouldError = e instanceof Error;
         const shouldDbError = e instanceof DbError;
+
+        // suitable for if-else checking
         const shouldDbEntryNotFoundError = e instanceof DbEntryNotFoundError;
+
+        // suitable for switch-case checking 
         const shouldConstructor = (e.constructor === DbEntryNotFoundError);
 
         expect([shouldError, shouldDbError, shouldDbEntryNotFoundError, shouldConstructor])
@@ -134,11 +138,15 @@ describe('UsersDb', () => {
     })
 
     it('should be DbEntryAlreadyExistError type', () => {
-        let e = new DbEntryAlreadyExistError();
+        let e: any = new DbEntryAlreadyExistError();
 
         const shouldError = e instanceof Error;
         const shouldDbError = e instanceof DbError;
+
+        // suitable for if-else checking
         const shouldDbEntryAlreadyExistError = e instanceof DbEntryAlreadyExistError;
+
+        // suitable for switch-case checking 
         const shouldConstructor = (e.constructor === DbEntryAlreadyExistError);
 
         expect([shouldError, shouldDbError, shouldDbEntryAlreadyExistError, shouldConstructor])
