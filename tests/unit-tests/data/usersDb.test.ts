@@ -1,4 +1,3 @@
-import 'jest'
 import { Repository } from '../../../src/data/repository';
 import { UsersDb } from '../../../src/data/usersDb';
 import { DbError, DbEntryNotFoundError, DbEntryAlreadyExistError } from '../../../src/data/errors'
