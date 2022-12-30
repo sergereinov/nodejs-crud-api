@@ -1,3 +1,10 @@
+/**
+ * Object type contains prepared RegExp path to parse arguments values.
+ * 
+ * `pathRx` is built around a URL path rule like `'/api/users/{userId}/{orderId}'`.
+ * And `pathRx` is ready to match URL paths like `'/api/users/12-3242/fedsf22'`
+ * to extract values for corresponding `names`.
+ */
 export type PathTemplate = {
     pathRx: RegExp;
     names: string[];
@@ -40,7 +47,7 @@ export const parsePath = (path: string): string | PathTemplate => {
  * 
  * Then an object like `{ userId: '12-3242', orderId: 'fedsf22' }` will be returned
  */
-export const buildArguments = (path: string, tpl: PathTemplate): any => {
+export const buildArguments = (path: string, tpl: PathTemplate): object => {
     const values = path.match(tpl.pathRx)?.slice(1);
     if (!values || !tpl.names || values.length !== tpl.names.length) {
         return {};
