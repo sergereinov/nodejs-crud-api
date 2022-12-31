@@ -11,7 +11,7 @@ export interface Repository {
      * Get user by id
      * 
      * @param userId 
-     * @throws DbEntryNotFoundError
+     * @throws `DbInvalidEntryError`, `DbEntryNotFoundError`
      */
     getById(userId: string): User;
 
@@ -20,16 +20,16 @@ export interface Repository {
      * 
      * @param user object to create
      * @returns created user
-     * @throws DbEntryAlreadyExistError
+     * @throws `DbInvalidEntryError`
      */
-    create(user: User): User;
+    create(user: Partial<User>): User;
 
     /**
      * Update user by id
      * 
      * @param user object contains id to find the user and other fields to update them
      * @returns updated user
-     * @throws DbEntryNotFoundError
+     * @throws `DbInvalidEntryError`, `DbEntryNotFoundError`
      */
     update(user: User): User;
 
@@ -37,7 +37,7 @@ export interface Repository {
      * Delete user by id
      * 
      * @param userId 
-     * @throws DbEntryNotFoundError
+     * @throws `DbInvalidEntryError`, `DbEntryNotFoundError`
      */
     deleteById(userId: string): void;
 }
