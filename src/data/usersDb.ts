@@ -23,7 +23,7 @@ export class UsersDb {
      */
     getById(userId: string): User {
         // check input
-        this.validateUserId(userId);
+        this.validateUserIdArgument(userId);
 
         const u = this._users.find((u) => u.id === userId);
         if (!u) {
@@ -65,7 +65,7 @@ export class UsersDb {
      */
     update(user: User): User {
         // check input
-        this.validateUserId(user.id);
+        this.validateUserId(user);
         this.validateUserProperties(user);
 
         // check existence
@@ -85,7 +85,7 @@ export class UsersDb {
      */
     deleteById(userId: string): void {
         // check input
-        this.validateUserId(userId);
+        this.validateUserIdArgument(userId);
 
         // find user
         const index = this._users.findIndex((u) => u.id === userId)
@@ -98,11 +98,21 @@ export class UsersDb {
     }
 
     /**
+     * Validate user id argument helper
+     * @throws `DbInvalidEntryError` on error
+     */
+    private validateUserIdArgument(userId: string) {
+        if (!userId || !uuid.validate(userId)) {
+            throw new DbInvalidEntryError('invalid argument, user id must be an uuid');
+        }
+    }
+
+    /**
      * Validate user id helper
      * @throws `DbInvalidEntryError` on error
      */
-    private validateUserId(userId: string) {
-        if (!userId || !uuid.validate(userId)) {
+    private validateUserId(user: Partial<User>) {
+        if (!user || !user.id || !uuid.validate(user.id)) {
             throw new DbInvalidEntryError('invalid field format, user id must be an uuid');
         }
     }
@@ -112,6 +122,9 @@ export class UsersDb {
      * @throws `DbInvalidEntryError` on error
      */
     private validateUserProperties(userProperties: Partial<User>) {
+        if (!userProperties) {
+            throw new DbInvalidEntryError('invalid format, missing user properties');
+        }
         if (!userProperties.username || typeof userProperties.username !== 'string') {
             throw new DbInvalidEntryError('invalid field format, username must be a string');
         }
@@ -137,5 +150,4 @@ export class UsersDb {
         }
         throw new DbInternalError('failed to generate unique user id');
     }
-
 }
