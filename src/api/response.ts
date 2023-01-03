@@ -2,28 +2,32 @@ import http from 'node:http';
 import * as EDb from '../data/errors';
 import * as EApi from './errors';
 import * as Status from './status';
+import { logger } from '../logger/logger';
 
 export const responseWithCode = (response: http.ServerResponse, code: number, result?: object): void => {
-    response.statusCode = code;
-    response.statusMessage = http.STATUS_CODES[code];
+    const text = http.STATUS_CODES[code];
+    const body = result && JSON.stringify(result)
+    
+    logger(code, text, 'body is', body || '(empty)');
+
+    [response.statusCode, response.statusMessage] = [code, text];
     response.setHeader('Content-Type', 'application/json');
-    if (result) {
-        response.write(JSON.stringify(result));
+    if (body) {
+        response.write(body);
     }
     response.end();
 }
 
 export const responseWithError = (response: http.ServerResponse, error: any): void => {
+    logger('error', error.constructor, error.message);
+
     const { code, text, msg } = explainError(error);
     [response.statusCode, response.statusMessage] = [code, text];
     response.setHeader('Content-Type', 'application/json');
     response.end(JSON.stringify({ error: code, message: msg }));
 }
 
-//export const responseWithNotFound = (response: http.ServerResponse) =>
-//    responseWithError(response, new EApi.ApiResourceNotFoundError('resource not found'));
-
-export const explainError = (error: Error): { code: number, text: string, msg: string } => {
+export const explainError = (error: any): { code: number, text: string, msg: string } => {
     if (error instanceof Error) {
 
         if (error instanceof EDb.DbError) {

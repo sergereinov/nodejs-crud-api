@@ -29,7 +29,7 @@ export class Api implements ApiRouter {
         }
     }
 
-    private async getUsers(request: http.IncomingMessage, response: http.ServerResponse) {
+    private getUsers = async (request: http.IncomingMessage, response: http.ServerResponse) => {
         try {
             const users = await this.repository.getAll();
             responseWithCode(response, Status.codeOk, users);
@@ -38,7 +38,7 @@ export class Api implements ApiRouter {
         }
     }
 
-    private async getUserById(request: http.IncomingMessage, response: http.ServerResponse, args: { userId: string }) {
+    private getUserById = async (request: http.IncomingMessage, response: http.ServerResponse, args: { userId: string }) => {
         try {
             const user = await this.repository.getById(args.userId);
             responseWithCode(response, Status.codeOk, user);
@@ -47,7 +47,7 @@ export class Api implements ApiRouter {
         }
     }
 
-    private async createUser(request: http.IncomingMessage, response: http.ServerResponse) {
+    private createUser = async (request: http.IncomingMessage, response: http.ServerResponse) => {
         try {
             const userProperties = await loadBodyJson(request);
             const user = await this.repository.create(userProperties);
@@ -57,7 +57,7 @@ export class Api implements ApiRouter {
         }
     }
 
-    private async updateUserById(request: http.IncomingMessage, response: http.ServerResponse, args: { userId: string }) {
+    private updateUserById = async (request: http.IncomingMessage, response: http.ServerResponse, args: { userId: string }) => {
         try {
             const userProperties = await loadBodyJson(request);
             if ('id' in userProperties) {
@@ -71,7 +71,7 @@ export class Api implements ApiRouter {
         }
     }
 
-    private async deleteUserById(request: http.IncomingMessage, response: http.ServerResponse, args: { userId: string }) {
+    private deleteUserById = async (request: http.IncomingMessage, response: http.ServerResponse, args: { userId: string }) => {
         try {
             await this.repository.deleteById(args.userId);
             responseWithCode(response, Status.codeNoContent);
