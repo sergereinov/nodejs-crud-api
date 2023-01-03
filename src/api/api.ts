@@ -7,6 +7,7 @@ import { ApiInvalidInputError, ApiResourceNotFoundError } from './errors';
 import * as Status from './status';
 import { loadBodyJson } from './request';
 import { responseWithCode, responseWithError } from './response';
+import { logger } from '../logger/logger';
 
 export class Api implements ApiRouter {
     private router: Router;
@@ -24,6 +25,8 @@ export class Api implements ApiRouter {
     };
 
     route(request: http.IncomingMessage, response: http.ServerResponse): void {
+        logger(request.method, request.url);
+
         if (!this.router.do(request, response)) {
             responseWithError(response, new ApiResourceNotFoundError('requested resource not found'));
         }
