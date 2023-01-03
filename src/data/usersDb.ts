@@ -1,11 +1,12 @@
 import * as uuid from 'uuid';
+import { Repository } from './repository';
 import { User } from './user';
 import { DbEntryNotFoundError, DbInvalidEntryError, DbInternalError } from './errors';
 
 /**
  * In-memory Users Database
  */
-export class UsersDb {
+export class UsersDb implements Repository {
     private _users: User[];
 
     constructor() {
@@ -15,13 +16,15 @@ export class UsersDb {
     /**
      * Get all users
      */
-    getAll = (): User[] => this._users.map((u) => Object.assign({}, u));
+    async getAll(): Promise<User[]> {
+        return this._users.map((u) => Object.assign({}, u));
+    }
 
     /**
      * Get user by id
      * @throws `DbInvalidEntryError`, `DbEntryNotFoundError`
      */
-    getById(userId: string): User {
+    async getById(userId: string): Promise<User> {
         // check input
         this.validateUserIdArgument(userId);
 
@@ -37,7 +40,7 @@ export class UsersDb {
      * Create new user
      * @throws `DbInvalidEntryError`
      */
-    create(userProperties: Partial<User>): User {
+    async create(userProperties: Partial<User>): Promise<User> {
         //check for required fields
         if (userProperties.id) {
             throw new DbInvalidEntryError('invalid field format, id field is redundant')
@@ -63,7 +66,7 @@ export class UsersDb {
      * Update user by id
      * @throws `DbInvalidEntryError`, `DbEntryNotFoundError`
      */
-    update(user: User): User {
+    async update(user: User): Promise<User> {
         // check input
         this.validateUserId(user);
         this.validateUserProperties(user);
@@ -83,7 +86,7 @@ export class UsersDb {
      * Delete user by id
      * @throws `DbInvalidEntryError`, `DbEntryNotFoundError`
      */
-    deleteById(userId: string): void {
+    async deleteById(userId: string): Promise<void> {
         // check input
         this.validateUserIdArgument(userId);
 

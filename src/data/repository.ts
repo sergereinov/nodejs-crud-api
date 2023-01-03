@@ -5,7 +5,7 @@ export interface Repository {
     /**
      * Get all users
      */
-    getAll(): User[];
+    getAll(): Promise<User[]>;
 
     /**
      * Get user by id
@@ -13,7 +13,7 @@ export interface Repository {
      * @param userId 
      * @throws `DbInvalidEntryError`, `DbEntryNotFoundError`
      */
-    getById(userId: string): User;
+    getById(userId: string): Promise<User>;
 
     /**
      * Create new user
@@ -22,7 +22,7 @@ export interface Repository {
      * @returns created user
      * @throws `DbInvalidEntryError`
      */
-    create(user: Partial<User>): User;
+    create(user: Partial<User>): Promise<User>;
 
     /**
      * Update user by id
@@ -31,7 +31,7 @@ export interface Repository {
      * @returns updated user
      * @throws `DbInvalidEntryError`, `DbEntryNotFoundError`
      */
-    update(user: User): User;
+    update(user: User): Promise<User>;
 
     /**
      * Delete user by id
@@ -39,5 +39,5 @@ export interface Repository {
      * @param userId 
      * @throws `DbInvalidEntryError`, `DbEntryNotFoundError`
      */
-    deleteById(userId: string): void;
+    deleteById(userId: string): Promise<void>;
 }

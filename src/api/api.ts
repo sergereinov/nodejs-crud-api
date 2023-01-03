@@ -1,4 +1,5 @@
-import http from 'node:http'
+import http from 'node:http';
+import { ApiRouter } from './apiRouter';
 import { Repository } from '../data/repository';
 import { User } from '../data/user';
 import { Router } from '../router/router'
@@ -7,7 +8,7 @@ import * as Status from './status';
 import { loadBodyJson } from './request';
 import { responseWithCode, responseWithError } from './response';
 
-export class Api {
+export class Api implements ApiRouter {
     private router: Router;
 
     constructor(
@@ -30,7 +31,7 @@ export class Api {
 
     private async getUsers(request: http.IncomingMessage, response: http.ServerResponse) {
         try {
-            const users = this.repository.getAll();
+            const users = await this.repository.getAll();
             responseWithCode(response, Status.codeOk, users);
         } catch (e) {
             responseWithError(response, e);
@@ -39,7 +40,7 @@ export class Api {
 
     private async getUserById(request: http.IncomingMessage, response: http.ServerResponse, args: { userId: string }) {
         try {
-            const user = this.repository.getById(args.userId);
+            const user = await this.repository.getById(args.userId);
             responseWithCode(response, Status.codeOk, user);
         } catch (e) {
             responseWithError(response, e);
@@ -49,7 +50,7 @@ export class Api {
     private async createUser(request: http.IncomingMessage, response: http.ServerResponse) {
         try {
             const userProperties = await loadBodyJson(request);
-            const user = this.repository.create(userProperties);
+            const user = await this.repository.create(userProperties);
             responseWithCode(response, Status.codeCreated, user);
         } catch (e) {
             responseWithError(response, e);
@@ -63,7 +64,7 @@ export class Api {
                 throw new ApiInvalidInputError('invalid body json, id field is redundant');
             }
             const updateUser = { ...userProperties, ...{ id: args.userId } };
-            const user = this.repository.update(updateUser as User);
+            const user = await this.repository.update(updateUser as User);
             responseWithCode(response, Status.codeOk, user);
         } catch (e) {
             responseWithError(response, e);
@@ -72,7 +73,7 @@ export class Api {
 
     private async deleteUserById(request: http.IncomingMessage, response: http.ServerResponse, args: { userId: string }) {
         try {
-            this.repository.deleteById(args.userId);
+            await this.repository.deleteById(args.userId);
             responseWithCode(response, Status.codeNoContent);
         } catch (e) {
             responseWithError(response, e);
