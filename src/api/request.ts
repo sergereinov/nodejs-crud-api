@@ -2,12 +2,12 @@ import http from 'node:http';
 import { ApiJsonSyntaxError } from './errors';
 
 /**
- * Load body from request and parse json into object
+ * Load body from http.IncomingMessage and parse json into object
  * @throws SyntaxError
  */
-export const loadBodyJson = async (request: http.IncomingMessage): Promise<object> => {
+export const loadBodyJson = async (reader: http.IncomingMessage): Promise<object> => {
     const buf = [];
-    for await (const chunk of request) {
+    for await (const chunk of reader) {
         buf.push(chunk);
     }
     const body = Buffer.concat(buf).toString();
