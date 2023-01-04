@@ -12,7 +12,7 @@ type RequestMethods = "GET" | "POST" | "PUT" | "DELETE";
  */
 const loadErrorMsg = async (response: http.IncomingMessage): Promise<string | null> => {
     const obj = await loadBodyJson(response);
-    const msg = ('msg' in obj) ? obj.msg.toString() : null;
+    const msg = ('message' in obj) ? obj.message.toString() : null;
     return msg;
 }
 
