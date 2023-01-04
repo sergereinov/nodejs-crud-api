@@ -1,9 +1,11 @@
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
-import { logger } from './logger/logger';
+import { logger, setLogger, getLogger } from './logger/logger';
 import { UsersDb } from './data/usersDb';
+import { RemoteUsersDb } from './remotedb/remotedb';
 import { Api } from './api/api';
 import * as worker from './worker';
+import * as loadBalancer from './loadBalancer/loadBalancer';
 
 /**
  * Run workers cluster:
@@ -16,25 +18,37 @@ export const run = (host: string, port: number) => {
     if (cluster.isPrimary) {
         // Run primary
 
+        const oldLogger = getLogger();
+        setLogger((args) => oldLogger('[PRIMARY]', ...args));
+
         logger(`Primary is running`);
 
+        // Spawning the Database Worker
         const remoteDbPort = port + 1;
         forkDatabaseWorker(remoteDbPort);
 
-        const numCPUs = cpus().length;
+        // Spawning a set of Api-Workers
+        const count = cpus().length;
         const firstWorkerPort = remoteDbPort + 1;
-        forkApiWorkers(numCPUs, firstWorkerPort, remoteDbPort);
+        forkApiWorkers(count, firstWorkerPort, remoteDbPort);
 
-        //run load balancer
-        //TODO
+        // Run the Load Balancer
+        loadBalancer.run(host, port, firstWorkerPort, count);
 
     } else {
-        // Run the worker
+        // Run the Worker
 
         if ('DBPORT' in process.env) {
+            const id = +process.env.id || 0;
+            const oldLogger = getLogger();
+            setLogger((args) => oldLogger(`[API-${id}]`, ...args));
+
             const remoteDbPort = +process.env.DBPORT;
             runApiWorker(host, port, remoteDbPort);
         } else {
+            const oldLogger = getLogger();
+            setLogger((args) => oldLogger('[DB]', ...args));
+
             runDatabaseWorker(host, port);
         }
     }
@@ -47,7 +61,7 @@ const forkDatabaseWorker = (databasePort: number) =>
 const forkApiWorkers = (count: number, firstWorkerPort: number, databasePort: number) => {
     for (let i = 0; i < count; i++) {
         const workerPort = firstWorkerPort + i;
-        cluster.fork({ port: workerPort, dbPort: databasePort });
+        cluster.fork({ port: workerPort, dbPort: databasePort, id: i + 1 });
     }
 
     cluster.on('exit', (worker, code, signal) => {
@@ -56,11 +70,13 @@ const forkApiWorkers = (count: number, firstWorkerPort: number, databasePort: nu
 }
 
 const runApiWorker = (host: string, port: number, databasePort: number) => {
-    //TODO
+    const db = new RemoteUsersDb(host, databasePort);
+    const api = new Api(db);
+    worker.run(host, port, api, 'API Worker');
 }
 
 const runDatabaseWorker = (host: string, port: number) => {
     const db = new UsersDb();
     const api = new Api(db);
-    worker.run(host, port, api);
+    worker.run(host, port, api, 'Database Worker');
 }
