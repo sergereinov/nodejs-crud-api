@@ -2,6 +2,7 @@ import http from 'node:http';
 import { Repository } from '../data/repository';
 import { User } from '../data/user';
 import { queryRAPI } from './request';
+import { usersBaseUrl } from '../api/baseUrl';
 
 export class RemoteUsersDb implements Repository {
 
@@ -26,28 +27,28 @@ export class RemoteUsersDb implements Repository {
     }
 
     async getAll(): Promise<User[]> {
-        const users = await queryRAPI(this.options, 'GET', '/api/users') as User[];
+        const users = await queryRAPI(this.options, 'GET', usersBaseUrl) as User[];
         return users;
     }
 
     async getById(userId: string): Promise<User> {
-        const user = await queryRAPI(this.options, 'GET', `/api/users/${userId}`) as User;
+        const user = await queryRAPI(this.options, 'GET', `${usersBaseUrl}/${userId}`) as User;
         return user;
     }
 
     async create(userProperties: Partial<User>): Promise<User> {
-        const user = await queryRAPI(this.options, 'POST', `/api/users`, userProperties) as User;
+        const user = await queryRAPI(this.options, 'POST', usersBaseUrl, userProperties) as User;
         return user;
     }
 
     async update(user: User): Promise<User> {
         const userId = user.id;
         const userProperties: Omit<User, 'id'> = user;
-        const userResult = await queryRAPI(this.options, 'PUT', `/api/users/${userId}`, userProperties) as User;
+        const userResult = await queryRAPI(this.options, 'PUT', `${usersBaseUrl}/${userId}`, userProperties) as User;
         return userResult;
     }
 
     async deleteById(userId: string): Promise<void> {
-        await queryRAPI(this.options, 'DELETE', `/api/users/${userId}`);
+        await queryRAPI(this.options, 'DELETE', `${usersBaseUrl}/${userId}`);
     }
 }

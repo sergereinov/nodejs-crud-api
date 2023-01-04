@@ -1,8 +1,9 @@
 import http from 'node:http';
 import { ApiRouter } from './apiRouter';
+import { Router } from '../router/router'
 import { Repository } from '../data/repository';
 import { User } from '../data/user';
-import { Router } from '../router/router'
+import { usersBaseUrl } from './baseUrl';
 import { ApiInvalidInputError, ApiResourceNotFoundError } from './errors';
 import * as Status from './status';
 import { loadBodyJson } from './request';
@@ -16,11 +17,11 @@ export class Api implements ApiRouter {
         private repository: Repository
     ) {
         this.router = new Router()
-            .on('GET', '/api/users', this.getUsers)
-            .on('GET', '/api/users/{userId}', this.getUserById)
-            .on('POST', '/api/users', this.createUser)
-            .on('PUT', '/api/users/{userId}', this.updateUserById)
-            .on('DELETE', '/api/users/{userId}', this.deleteUserById)
+            .on('GET', usersBaseUrl, this.getUsers)
+            .on('GET', usersBaseUrl + '/{userId}', this.getUserById)
+            .on('POST', usersBaseUrl, this.createUser)
+            .on('PUT', usersBaseUrl + '/{userId}', this.updateUserById)
+            .on('DELETE', usersBaseUrl + '/{userId}', this.deleteUserById)
             ;
     };
 
