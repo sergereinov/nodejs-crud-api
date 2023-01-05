@@ -42,7 +42,7 @@ export const parsePath = (path: string): string | PathTemplate => {
 /**
  * Build path arguments object based on PathTemplate.
  * 
- * For a previously parsed route rule such as `'/api/users/{userId}/{orderId}'`,
+ * For a previously parsed (with `parsePath()`) route rule such as `'/api/users/{userId}/{orderId}'`,
  * the input path should look like `'/api/users/12-3242/fedsf22'`.
  * 
  * Then an object like `{ userId: '12-3242', orderId: 'fedsf22' }` will be returned

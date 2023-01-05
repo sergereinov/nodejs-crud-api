@@ -42,13 +42,16 @@ export class RemoteUsersDb implements Repository {
     }
 
     async update(user: User): Promise<User> {
+        // Take 'id'
         const userId = user.id;
+        // Take all except 'id'
         const userProperties = Object.keys(user)
             .filter(k => k !== 'id')
             .reduce((obj, key) => {
                 obj[key] = user[key];
                 return obj;
             }, {});
+        // Call update
         const userResult = await queryRAPI(this.options, 'PUT', `${usersBaseUrl}/${userId}`, userProperties) as User;
         return userResult;
     }

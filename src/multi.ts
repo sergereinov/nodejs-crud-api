@@ -39,6 +39,8 @@ export const run = (host: string, port: number) => {
         // Run the Worker
 
         if ('DBPORT' in process.env) {
+            // This is an API-worker            
+
             const id = +process.env.id || 0;
             const oldLogger = getLogger();
             setLogger((args) => oldLogger(`[API-${id}]`, ...args));
@@ -46,6 +48,8 @@ export const run = (host: string, port: number) => {
             const remoteDbPort = +process.env.DBPORT;
             runApiWorker(host, port, remoteDbPort);
         } else {
+            // This is a Database worker
+            
             const oldLogger = getLogger();
             setLogger((args) => oldLogger('[DB]', ...args));
 

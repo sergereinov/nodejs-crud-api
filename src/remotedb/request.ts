@@ -8,7 +8,8 @@ type RequestMethods = "GET" | "POST" | "PUT" | "DELETE";
 
 /**
  * Helper. Load error message from body json.
- * Expected body object format like { msg: string }
+ * 
+ * Expected body object format like `{ msg: string }`
  */
 const loadErrorMsg = async (response: http.IncomingMessage): Promise<string | null> => {
     const obj = await loadBodyJson(response);
@@ -33,6 +34,7 @@ export const queryRAPI = async (
 
         // Make request
         const req = http.request(opt, async (response) => {
+            // Parse response
             try {
                 switch (response.statusCode) {
 
@@ -57,10 +59,12 @@ export const queryRAPI = async (
 
                     case Status.codeOk:
                     case Status.codeCreated:
+                        // ok with object
                         resolve(await loadBodyJson(response));
                         return;
 
                     case Status.codeNoContent:
+                        // ok with no content
                         resolve({});
                         return;
                 }
@@ -75,7 +79,7 @@ export const queryRAPI = async (
             reject(e);
         });
 
-        // Body
+        // Send body
         if (data) {
             req.write(JSON.stringify(data));
         }
