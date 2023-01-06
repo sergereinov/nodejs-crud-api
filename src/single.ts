@@ -8,5 +8,5 @@ import * as worker from './worker';
 export const run = (host: string, port: number) => {
     const db = new UsersDb();
     const api = new Api(db);
-    worker.run(host, port, api);
+    return worker.run(host, port, api);
 }
