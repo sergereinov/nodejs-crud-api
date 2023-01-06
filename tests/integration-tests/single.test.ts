@@ -1,5 +1,6 @@
 import http from 'node:http'
 import request from 'supertest';
+import * as st from 'supertest';
 import { NIL as NIL_UUID } from 'uuid';
 import { usersBaseUrl } from '../../src/api/baseUrl';
 import * as Status from '../../src/api/status';
@@ -7,14 +8,14 @@ import * as single from '../../src/single';
 import { setLogger } from '../../src/logger/logger';
 import { User } from '../../src/data/user';
 
-const partialUser = (factor: number) => ({
-    username: `name${factor}`,
-    age: factor,
-    hobbies: [`hob1/${factor}`, `hob2/${factor}`]
-});
-
 describe('1. CRUD operations / good scenario', () => {
     beforeAll(() => setLogger(() => { })); // disable logger
+
+    const partialUser = (factor: number) => ({
+        username: `name${factor}`,
+        age: factor,
+        hobbies: [`hob1/${factor}`, `hob2/${factor}`]
+    });
 
     const host = 'localhost';
     const port = 4000;
@@ -147,7 +148,7 @@ describe('2. CRUD errors / all required errors', () => {
         userId      | expectedStatus              | text
         ${123}      | ${Status.badRequest().code} | ${Status.badRequest().text}
         ${NIL_UUID} | ${Status.notFound().code}   | ${Status.notFound().text}
-    `(`get $userId -> $expectedStatus $text`, async ({ userId, expectedStatus }) => {
+    `('get $userId -> $expectedStatus $text', async ({ userId, expectedStatus }) => {
         await request(server)
             .get(`${usersBaseUrl}/${userId}`)
             .expect(expectedStatus)
@@ -162,7 +163,7 @@ describe('2. CRUD errors / all required errors', () => {
         body      | expectedStatus              | text
         ${'{}'}   | ${Status.badRequest().code} | ${Status.badRequest().text}
         ${'{[,}'} | ${Status.badRequest().code} | ${Status.badRequest().text}
-    `(`create $body -> $expectedStatus $text`, async ({ body, expectedStatus }) => {
+    `('create $body -> $expectedStatus $text', async ({ body, expectedStatus }) => {
         await request(server)
             .post(usersBaseUrl)
             .send(body)
@@ -180,7 +181,7 @@ describe('2. CRUD errors / all required errors', () => {
         ${NIL_UUID} | ${'{}'} | ${Status.badRequest().code} | ${Status.badRequest().text}
         ${NIL_UUID} | ${'{[,}'} | ${Status.badRequest().code} | ${Status.badRequest().text}
         ${NIL_UUID} | ${'{"username":"u","age":1,"hobbies":[]}'} | ${Status.notFound().code} | ${Status.notFound().text}
-    `(`update $userId with $body -> $expectedStatus $text`, async ({ userId, body, expectedStatus }) => {
+    `('update $userId with $body -> $expectedStatus $text', async ({ userId, body, expectedStatus }) => {
         await request(server)
             .put(`${usersBaseUrl}/${userId}`)
             .send(body)
@@ -196,7 +197,7 @@ describe('2. CRUD errors / all required errors', () => {
         userId      | expectedStatus              | text
         ${123}      | ${Status.badRequest().code} | ${Status.badRequest().text}
         ${NIL_UUID} | ${Status.notFound().code}   | ${Status.notFound().text}
-    `(`delete $userId -> $expectedStatus $text`, async ({ userId, expectedStatus }) => {
+    `('delete $userId -> $expectedStatus $text', async ({ userId, expectedStatus }) => {
         await request(server)
             .delete(`${usersBaseUrl}/${userId}`)
             .expect(expectedStatus)
@@ -209,7 +210,6 @@ describe('2. CRUD errors / all required errors', () => {
 
 });
 
-
 describe('3. CRUD with unknown path', () => {
     beforeAll(() => setLogger(() => { })); // disable logger
 
@@ -221,23 +221,33 @@ describe('3. CRUD with unknown path', () => {
         server = single.run(host, port);
     });
 
-    it.each`
-        path                      | expectedStatus            | text
-        ${'/'}                    | ${Status.notFound().code} | ${Status.notFound().text}
-        ${'/api'}                 | ${Status.notFound().code} | ${Status.notFound().text}
-        ${'/api/other'}           | ${Status.notFound().code} | ${Status.notFound().text}
-        ${'/api/users/'}          | ${Status.notFound().code} | ${Status.notFound().text}
-        ${'/api/users/123/'}      | ${Status.notFound().code} | ${Status.notFound().text}
-        ${'/api/users/123/other'} | ${Status.notFound().code} | ${Status.notFound().text}
-    `(`get $path -> $expectedStatus $text`, async ({ path, expectedStatus }) => {
-        await request(server)
-            .get(path)
-            .expect(expectedStatus)
-            .expect('Content-Type', /json/)
-            .expect((res) => {
-                expect(res.body).toHaveProperty('error', expectedStatus);
-                expect(res.body).toHaveProperty('message');
-            });
-    });
+    const expectedStatus = Status.notFound().code;
+    const text = Status.notFound().text;
 
+    it.each`
+        path                      
+        ${''}
+        ${'/'}
+        ${'/api'}
+        ${'/api/other'}
+        ${'/api/users/'}
+        ${'/api/users/123/'}
+        ${'/api/users/123/other'}
+    `(`requests $path -> ${expectedStatus} ${text}`, async ({ path }) => {
+
+        await Promise.all(
+            ['GET', 'POST', 'PUT', 'DELETE'].map((method) => request(server)
+                .get(path)
+                .use((req) => {
+                    req.method = method
+                })
+                .expect(expectedStatus)
+                .expect('Content-Type', /json/)
+                .expect((res) => {
+                    expect(res.body).toHaveProperty('error', expectedStatus);
+                    expect(res.body).toHaveProperty('message');
+                })
+            )
+        );
+    })
 });
