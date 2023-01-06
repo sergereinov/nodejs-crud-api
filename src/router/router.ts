@@ -13,7 +13,7 @@ type RouteCallback = (
 /**
  * Definitions of allowed methods
  */
-type RouteMethods = "GET" | "POST" | "PUT" | "DELETE";
+type RouteMethods = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 /**
  * A route rule containing a pattern to find and invoke the appropriate callback

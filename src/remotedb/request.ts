@@ -4,7 +4,7 @@ import * as Status from '../api/status';
 import { loadBodyJson } from '../api/request';
 import { logger } from '../logger/logger';
 
-type RequestMethods = "GET" | "POST" | "PUT" | "DELETE";
+type RequestMethods = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 /**
  * Helper. Load error message from body json.
