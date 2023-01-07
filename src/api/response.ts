@@ -8,7 +8,7 @@ export const responseWithCode = (response: http.ServerResponse, code: number, re
     const text = http.STATUS_CODES[code];
     const body = result && JSON.stringify(result)
     
-    logger(code, text, 'body is', body || '(empty)');
+    logger(`${code} ${text}, body is`, body || '(empty)');
 
     [response.statusCode, response.statusMessage] = [code, text];
     response.setHeader('Content-Type', 'application/json');

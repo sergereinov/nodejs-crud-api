@@ -38,34 +38,36 @@ export const run = (host: string, port: number) => {
     } else {
         // Run the Worker
 
-        if ('DBPORT' in process.env) {
-            // This is an API-worker            
+        const workerPort = +process.env.WORKER_PORT;
+
+        if ('DB_PORT' in process.env) {
+            // This is an API-worker with connection to a remote Database
 
             const id = +process.env.id || 0;
             const oldLogger = getLogger();
             setLogger((args) => oldLogger(`[API-${id}]`, ...args));
 
-            const remoteDbPort = +process.env.DBPORT;
-            runApiWorker(host, port, remoteDbPort);
+            const remoteDbPort = +process.env.DB_PORT;
+            runApiWorker(host, workerPort, remoteDbPort);
         } else {
             // This is a Database worker
             
             const oldLogger = getLogger();
             setLogger((args) => oldLogger('[DB]', ...args));
 
-            runDatabaseWorker(host, port);
+            runDatabaseWorker(host, workerPort);
         }
     }
 
 }
 
 const forkDatabaseWorker = (databasePort: number) =>
-    cluster.fork({ port: databasePort });
+    cluster.fork({ WORKER_PORT: databasePort });
 
 const forkApiWorkers = (count: number, firstWorkerPort: number, databasePort: number) => {
     for (let i = 0; i < count; i++) {
         const workerPort = firstWorkerPort + i;
-        cluster.fork({ port: workerPort, dbPort: databasePort, id: i + 1 });
+        cluster.fork({ WORKER_PORT: workerPort, DB_PORT: databasePort, id: i + 1 });
     }
 
     cluster.on('exit', (worker, code, signal) => {
