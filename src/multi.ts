@@ -19,7 +19,7 @@ export const run = (host: string, port: number) => {
         // Run primary
 
         const oldLogger = getLogger();
-        setLogger((args) => oldLogger('[PRIMARY]', ...args));
+        setLogger((...args) => oldLogger('[PRIMARY]', ...args));
 
         logger(`Primary is running`);
 
@@ -45,20 +45,19 @@ export const run = (host: string, port: number) => {
 
             const id = +process.env.id || 0;
             const oldLogger = getLogger();
-            setLogger((args) => oldLogger(`[API-${id}]`, ...args));
+            setLogger((...args) => oldLogger(`[API-${id}]`, ...args));
 
             const remoteDbPort = +process.env.DB_PORT;
             runApiWorker(host, workerPort, remoteDbPort);
         } else {
             // This is a Database worker
-            
+
             const oldLogger = getLogger();
-            setLogger((args) => oldLogger('[DB]', ...args));
+            setLogger((...args) => oldLogger('[DB]', ...args));
 
             runDatabaseWorker(host, workerPort);
         }
     }
-
 }
 
 const forkDatabaseWorker = (databasePort: number) =>
