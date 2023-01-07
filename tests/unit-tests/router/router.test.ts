@@ -14,8 +14,8 @@ describe('Router class from router', () => {
     const mockDeleteUserById = jest.fn((request, response, args) => undefined);
 
     beforeAll(() => {
-        // Prepare router, set paths and api calls
-        // most minimal API see in assignment:
+        // Prepare router, set endpoints and api calls.
+        // API description see in the assignment:
         //   https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/crud-api/assignment.md
         router = new Router()
             .on('GET', '/api/users', mockGetUsers)
@@ -35,14 +35,14 @@ describe('Router class from router', () => {
     });
 
     it('should call getUsers', () => {
-        const request = { method: 'GET', url: '/api/users' } as http.IncomingMessage;
-        const response = {} as http.ServerResponse;
+        const stubRequest = { method: 'GET', url: '/api/users' } as http.IncomingMessage;
+        const dummyResponse = {} as http.ServerResponse;
 
-        const routeFound = router.do(request, response);
+        const routeFound = router.do(stubRequest, dummyResponse);
 
         expect(routeFound).toBeTruthy();
         expect(mockGetUsers).toBeCalledTimes(1);
-        expect(mockGetUsers.mock.calls[0]).toMatchObject([request, response]);
+        expect(mockGetUsers.mock.calls[0]).toMatchObject([stubRequest, dummyResponse]);
 
         expect(mockGetUserById).not.toBeCalled();
         expect(mockCreateUser).not.toBeCalled();
@@ -51,16 +51,16 @@ describe('Router class from router', () => {
     });
 
     it('should call getUserById', () => {
-        const request = { method: 'GET', url: '/api/users/12-347' } as http.IncomingMessage;
-        const response = {} as http.ServerResponse;
+        const stubRequest = { method: 'GET', url: '/api/users/12-347' } as http.IncomingMessage;
+        const dummyResponse = {} as http.ServerResponse;
 
-        const routeFound = router.do(request, response);
+        const routeFound = router.do(stubRequest, dummyResponse);
 
         expect(routeFound).toBeTruthy();
         expect(mockGetUserById).toBeCalledTimes(1);
         expect(mockGetUserById.mock.calls[0]).toMatchObject([
-            request,
-            response,
+            stubRequest,
+            dummyResponse,
             { userId: '12-347' }
         ]);
 
@@ -71,14 +71,14 @@ describe('Router class from router', () => {
     });
 
     it('should call createUser', () => {
-        const request = { method: 'POST', url: '/api/users' } as http.IncomingMessage;
-        const response = {} as http.ServerResponse;
+        const stubRequest = { method: 'POST', url: '/api/users' } as http.IncomingMessage;
+        const dummyResponse = {} as http.ServerResponse;
 
-        const routeFound = router.do(request, response);
+        const routeFound = router.do(stubRequest, dummyResponse);
 
         expect(routeFound).toBeTruthy();
         expect(mockCreateUser).toBeCalledTimes(1);
-        expect(mockCreateUser.mock.calls[0]).toMatchObject([request, response]);
+        expect(mockCreateUser.mock.calls[0]).toMatchObject([stubRequest, dummyResponse]);
 
         expect(mockGetUsers).not.toBeCalled();
         expect(mockGetUserById).not.toBeCalled();
@@ -87,16 +87,16 @@ describe('Router class from router', () => {
     });
 
     it('should call updateUserById', () => {
-        const request = { method: 'PUT', url: '/api/users/12-347' } as http.IncomingMessage;
-        const response = {} as http.ServerResponse;
+        const stubRequest = { method: 'PUT', url: '/api/users/12-347' } as http.IncomingMessage;
+        const dummyResponse = {} as http.ServerResponse;
 
-        const routeFound = router.do(request, response);
+        const routeFound = router.do(stubRequest, dummyResponse);
 
         expect(routeFound).toBeTruthy();
         expect(mockUpdateUserById).toBeCalledTimes(1);
         expect(mockUpdateUserById.mock.calls[0]).toMatchObject([
-            request,
-            response,
+            stubRequest,
+            dummyResponse,
             { userId: '12-347' }
         ]);
 
@@ -107,16 +107,16 @@ describe('Router class from router', () => {
     });
 
     it('should call deleteUserById', () => {
-        const request = { method: 'DELETE', url: '/api/users/12-347' } as http.IncomingMessage;
-        const response = {} as http.ServerResponse;
+        const stubRequest = { method: 'DELETE', url: '/api/users/12-347' } as http.IncomingMessage;
+        const dummyResponse = {} as http.ServerResponse;
 
-        const routeFound = router.do(request, response);
+        const routeFound = router.do(stubRequest, dummyResponse);
 
         expect(routeFound).toBeTruthy();
         expect(mockDeleteUserById).toBeCalledTimes(1);
         expect(mockDeleteUserById.mock.calls[0]).toMatchObject([
-            request,
-            response,
+            stubRequest,
+            dummyResponse,
             { userId: '12-347' }
         ]);
 
