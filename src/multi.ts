@@ -16,24 +16,32 @@ import * as loadBalancer from './loadBalancer/loadBalancer';
 export const run = (host: string, port: number) => {
 
     if (cluster.isPrimary) {
-        // Run primary
+        // Run primary        
 
         const oldLogger = getLogger();
         setLogger((...args) => oldLogger('[PRIMARY]', ...args));
 
-        logger(`Primary is running`);
+        logger('Primary is running');
+
+        // Prepare params
+        const count = cpus().length;
+        const loadBalancerPort = port;
+        const firstWorkerPort = loadBalancerPort + 1;
+        const remoteDbPort = firstWorkerPort + count + 1;
 
         // Spawning the Database Worker
-        const remoteDbPort = port + 1;
         forkDatabaseWorker(remoteDbPort);
 
         // Spawning a set of Api-Workers
-        const count = cpus().length;
-        const firstWorkerPort = remoteDbPort + 1;
         forkApiWorkers(count, firstWorkerPort, remoteDbPort);
 
+        // Diag
+        cluster.on('exit', (worker, code, signal) => {
+            logger(`worker ${worker.process.pid} died`);
+        });
+    
         // Run the Load Balancer
-        loadBalancer.run(host, port, firstWorkerPort, count);
+        loadBalancer.run(host, loadBalancerPort, firstWorkerPort, count);
 
     } else {
         // Run the Worker
@@ -60,18 +68,17 @@ export const run = (host: string, port: number) => {
     }
 }
 
-const forkDatabaseWorker = (databasePort: number) =>
+const forkDatabaseWorker = (databasePort: number) => {
+    logger('Fork Database worker...');
     cluster.fork({ WORKER_PORT: databasePort });
+}
 
 const forkApiWorkers = (count: number, firstWorkerPort: number, databasePort: number) => {
+    logger(`Fork ${count} API workers...`);
     for (let i = 0; i < count; i++) {
         const workerPort = firstWorkerPort + i;
         cluster.fork({ WORKER_PORT: workerPort, DB_PORT: databasePort, id: i + 1 });
     }
-
-    cluster.on('exit', (worker, code, signal) => {
-        logger(`worker ${worker.process.pid} died`);
-    });
 }
 
 const runApiWorker = (host: string, port: number, databasePort: number) => {

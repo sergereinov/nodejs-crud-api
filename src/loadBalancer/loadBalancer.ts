@@ -10,7 +10,7 @@ export const run = (host: string, listenPort: number, firstWorkerPort: number, w
     var workersHost = host;
     var nextPort = firstWorkerPort;
 
-    http.createServer(async (request, response) => {
+    const balancerServer = http.createServer(async (request, response) => {
 
         // Extract base path:
         //   - split '/api/users/other-things' to ['', 'api', 'users', 'other-things']
@@ -67,6 +67,8 @@ export const run = (host: string, listenPort: number, firstWorkerPort: number, w
         .listen(listenPort, host, () => {
             logger(`Load balancer is running on http://${host}:${listenPort}`);
         });
+
+    return balancerServer;
 }
 
 /**
