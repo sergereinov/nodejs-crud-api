@@ -1,6 +1,5 @@
 import http from 'node:http'
 import request from 'supertest';
-import * as st from 'supertest';
 import { NIL as NIL_UUID } from 'uuid';
 import { usersBaseUrl } from '../../src/api/baseUrl';
 import * as Status from '../../src/api/status';
@@ -72,38 +71,30 @@ describe('1. CRUD operations / good scenario', () => {
         // Prepare DB
         await request(server).get(usersBaseUrl).expect([]);
         const fakeUser = partialUser(1);
-        await request(server).post(usersBaseUrl).send(fakeUser).expect(Status.codeCreated);
-
-        // Accure the id
-        const { body } = await request(server).get(usersBaseUrl);
-        const users = body as User[];
-        expect(users).toHaveLength(1);
+        const { body } = await request(server).post(usersBaseUrl).send(fakeUser);
+        const user = body as User
 
         // Get one user by id
         await request(server)
-            .get(`${usersBaseUrl}/${users[0].id}`)
+            //.get(`${usersBaseUrl}/${users[0].id}`)
+            .get(`${usersBaseUrl}/${user.id}`)
             .expect(Status.codeOk)
             .expect('Content-Type', /json/)
-            .expect(users[0]);
+            .expect(user);
     });
 
     it('update user by id', async () => {
         // Prepare DB
         await request(server).get(usersBaseUrl).expect([]);
         const fakeUser = partialUser(1);
-        await request(server).post(usersBaseUrl).send(fakeUser).expect(Status.codeCreated);
-
-        // Accure the id
-        const { body } = await request(server).get(usersBaseUrl);
-        const users = body as User[];
-        expect(users).toHaveLength(1);
-        const originalUser = users[0];
+        const { body } = await request(server).post(usersBaseUrl).send(fakeUser);
+        const user = body as User
 
         // Update user by id
         const fakeUserUpdated = partialUser(2);
-        const expectedUser = { ...{ id: originalUser.id }, ...fakeUserUpdated };
+        const expectedUser = { ...{ id: user.id }, ...fakeUserUpdated };
         await request(server)
-            .put(`${usersBaseUrl}/${originalUser.id}`)
+            .put(`${usersBaseUrl}/${user.id}`)
             .send(fakeUserUpdated)
             .expect(Status.codeOk)
             .expect('Content-Type', /json/)
@@ -114,17 +105,12 @@ describe('1. CRUD operations / good scenario', () => {
         // Prepare DB
         await request(server).get(usersBaseUrl).expect([]);
         const fakeUser = partialUser(1);
-        await request(server).post(usersBaseUrl).send(fakeUser).expect(Status.codeCreated);
-
-        // Accure the id
-        const { body } = await request(server).get(usersBaseUrl);
-        const users = body as User[];
-        expect(users).toHaveLength(1);
-        const id = users[0].id;
+        const { body } = await request(server).post(usersBaseUrl).send(fakeUser);
+        const user = body as User
 
         // Delete by id
         await request(server)
-            .delete(`${usersBaseUrl}/${id}`)
+            .delete(`${usersBaseUrl}/${user.id}`)
             .expect(Status.codeNoContent);
 
         // Check for DB is empty now
@@ -144,6 +130,8 @@ describe('2. CRUD errors / all required errors', () => {
         server = single.run(host, port);
     });
 
+    // Check errors of
+    //  get user by id
     it.each`
         userId      | expectedStatus              | text
         ${123}      | ${Status.badRequest().code} | ${Status.badRequest().text}
@@ -159,6 +147,8 @@ describe('2. CRUD errors / all required errors', () => {
             });
     });
 
+    // Check errors of
+    //  create user with incorrect/invalid body
     it.each`
         body      | expectedStatus              | text
         ${'{}'}   | ${Status.badRequest().code} | ${Status.badRequest().text}
@@ -175,6 +165,8 @@ describe('2. CRUD errors / all required errors', () => {
             });
     });
 
+    // Check errors of
+    //  update user by id
     it.each`
         userId      | body    | expectedStatus              | text
         ${123}      | ${'{}'} | ${Status.badRequest().code} | ${Status.badRequest().text}
@@ -193,6 +185,8 @@ describe('2. CRUD errors / all required errors', () => {
             });
     });
 
+    // Check errors of
+    //  delete user by id
     it.each`
         userId      | expectedStatus              | text
         ${123}      | ${Status.badRequest().code} | ${Status.badRequest().text}
@@ -207,7 +201,6 @@ describe('2. CRUD errors / all required errors', () => {
                 expect(res.body).toHaveProperty('message');
             });
     });
-
 });
 
 describe('3. CRUD with unknown path', () => {
@@ -221,8 +214,7 @@ describe('3. CRUD with unknown path', () => {
         server = single.run(host, port);
     });
 
-    const expectedStatus = Status.notFound().code;
-    const text = Status.notFound().text;
+    const { code: expectedStatus, text } = Status.notFound();
 
     it.each`
         path                      
@@ -235,6 +227,7 @@ describe('3. CRUD with unknown path', () => {
         ${'/api/users/123/other'}
     `(`requests $path -> ${expectedStatus} ${text}`, async ({ path }) => {
 
+        // Check path with all supported methods
         await Promise.all(
             ['GET', 'POST', 'PUT', 'DELETE'].map((method) => request(server)
                 .get(path)
@@ -249,5 +242,5 @@ describe('3. CRUD with unknown path', () => {
                 })
             )
         );
-    })
+    });
 });
