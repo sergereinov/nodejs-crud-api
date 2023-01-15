@@ -9,9 +9,9 @@ import * as loadBalancer from './loadBalancer/loadBalancer';
 
 /**
  * Run workers cluster:
- *  1. one instance of remote database (worker with in-memory database)
- *  2. n-th (cpus().length) instances of api workers
- *  3. instance of primary (local api server of load balancer)
+ *  1. fork instance of remote database (worker with in-memory database)
+ *  2. fork several instances (cpus().length) of api workers
+ *  3. execute instance of primary (local api server of load balancer)
  */
 export const run = (host: string, port: number) => {
 
