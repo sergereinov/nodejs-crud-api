@@ -70,7 +70,7 @@ graph LR
 * `npm run test` runs several unit tests and three API integration tests scenarios with `supertest`.
 
 In addition, there are a few more helper startup scripts:
-* `npm run build:tsc` builds projects from typescript into commonjs files. It helps to see how modules are translated into js.
+* `npm run build:tsc` builds project from typescript into commonjs files. It helps to see how modules are translated into js.
 * `npm run start:ts-prod` runs the application directly on the typescript sources without explicit translation to js.
 * `npm run start:ts-multi` the same with cluster mode.
 
@@ -84,4 +84,4 @@ The application implements the endpoints required by the task:
 * **PUT** `api/users/{userId}` is used to update existing user.
 * **DELETE** `api/users/{userId}` is used to delete existing user from database.
 
-The postman request collection `RSS CRUD API.postman_collection.json` will help you try the endpoints and see how the application works in detail.
+The Postman requests collection file `RSS CRUD API.postman_collection.json` will help you try the endpoints and see how the application works in detail.
